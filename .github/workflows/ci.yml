@@ -61,7 +61,7 @@ jobs:
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
 
       - name: Stop Grid
