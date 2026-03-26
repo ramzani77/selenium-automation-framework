@@ -1,13 +1,16 @@
 package com.sameer.test.tests;
 import com.sameer.framework.pages.LoginPage;
 import com.sameer.test.base.BaseTest;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
 public class LoginTest extends BaseTest {
-
-    @Test
+    @Epic("Login Feature")
+    @Feature("Login Test")
+    @Test(description = "Verify invalid login")
     public void verifyInvalidLogin(){
         LoginPage loginPage = new LoginPage();
 
