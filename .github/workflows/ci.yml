@@ -33,6 +33,25 @@ jobs:
       - name: Run Tests
         run: mvn clean test
 
+      - name: Install Allure
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.27.0.zip
+          unzip allure-2.27.0.zip
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Generate Allure Report
+        run: |
+          allure generate target/allure-results --clean -o allure-report
+
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
       - name: Upload Allure Results
         if: always()
         uses: actions/upload-artifact@v4
