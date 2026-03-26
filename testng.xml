@@ -1,4 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
 <suite name="CI Suite" parallel="false">
+
+    <listeners>
+        <listener class-name="com.sameer.test.listeners.TestListener"/>
+        <listener class-name="com.sameer.test.listeners.RetryListener"/>
+    </listeners>
 
     <test name="Chrome Test">
         <parameter name="browser" value="chrome"/>

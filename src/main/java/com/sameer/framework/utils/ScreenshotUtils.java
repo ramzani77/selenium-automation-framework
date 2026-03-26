@@ -25,7 +25,15 @@ public class ScreenshotUtils {
 
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
-        String path = "screenshots/" + testName + "_" + timestamp + ".png";
+        String folderPath = "screenshots/";
+
+        // ✅ Create folder if it does not exist
+        File directory = new File(folderPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        String path = folderPath + testName + "_" + timestamp + ".png";
 
         File dest = new File(path);
 
