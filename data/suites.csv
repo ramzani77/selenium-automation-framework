@@ -1,0 +1,4 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Thu Mar 26 21:19:54 UTC 2026","Thu Mar 26 21:19:55 UTC 2026","488","Surefire suite","Surefire test","com.sameer.test.tests.LoginTest","com.sameer.test.tests.LoginTest","verifyInvalidLogin2","verifyInvalidLogin2",""
+"passed","Thu Mar 26 21:19:52 UTC 2026","Thu Mar 26 21:19:52 UTC 2026","5","Surefire suite","Surefire test","com.sameer.test.tests.LoginTest","com.sameer.test.tests.LoginTest","retryTest","retryTest",""
+"passed","Thu Mar 26 21:19:53 UTC 2026","Thu Mar 26 21:19:53 UTC 2026","536","Surefire suite","Surefire test","com.sameer.test.tests.LoginTest","com.sameer.test.tests.LoginTest","verifyInvalidLogin","Verify invalid login",""
