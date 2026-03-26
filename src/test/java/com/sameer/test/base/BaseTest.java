@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.testng.annotations.Listeners;
 import com.sameer.test.listeners.TestListener;
 import org.testng.annotations.Parameters;
+import org.testng.annotations.Optional;   // ✅ ADD THIS
 
 @Listeners(TestListener.class)
 
@@ -18,7 +19,7 @@ public class BaseTest {
 
     @BeforeMethod
     @Parameters("browser")
-    public void setup(String browser) {
+    public void setup(@Optional("chrome") String browser) {   // ✅ FIX HERE
 
         log.info("Thread ID: " + Thread.currentThread().getId());
         log.info("===== Test Execution Started =====");
