@@ -5,6 +5,7 @@
     <listeners>
         <listener class-name="com.sameer.test.listeners.TestListener"/>
         <listener class-name="com.sameer.test.listeners.RetryListener"/>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
 
     <test name="Chrome Test">
