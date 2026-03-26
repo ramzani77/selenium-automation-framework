@@ -8,8 +8,14 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.edge.EdgeOptions;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.net.URL;
 
 public class DriverFactory {
 
@@ -21,39 +27,20 @@ public class DriverFactory {
             throw new RuntimeException("Browser is not provided");
         }
 
-        log.info("Initializing browser");
+        String runMode = ConfigReader.get("runMode");
+
+        log.info("Run Mode: " + runMode);
         log.info("Browser from TestNG: " + browser);
 
         WebDriver driver;
 
-        switch (browser.toLowerCase()) {
+        if ("remote".equalsIgnoreCase(runMode)) {
 
-            case "chrome":
-                log.info("Launching Chrome browser");
-                WebDriverManager.chromedriver().setup();
-//                driver = new ChromeDriver();
-                ChromeOptions options = new ChromeOptions();
+            driver = initRemoteDriver(browser);
 
-                options.addArguments("--headless=new");
-                options.addArguments("--no-sandbox");
-                options.addArguments("--disable-dev-shm-usage");
+        } else {
 
-                driver = new ChromeDriver(options);
-                break;
-
-            case "firefox":
-                log.info("Launching firefox browser");
-                WebDriverManager.firefoxdriver().setup();
-                driver = new FirefoxDriver();
-                break;
-
-            case "edge":
-                log.info("Launching edge browser");
-                driver = new EdgeDriver(); // no WebDriverManager
-                break;
-
-            default:
-                throw new RuntimeException("Invalid browser: " + browser);
+            driver = initLocalDriver(browser);
         }
 
         driver.manage().window().maximize();
@@ -61,5 +48,69 @@ public class DriverFactory {
 
         DriverManager.setDriver(driver);
         log.info("Browser launched successfully");
+    }
+
+    // ================= LOCAL =================
+    private static WebDriver initLocalDriver(String browser) {
+
+        switch (browser.toLowerCase()) {
+
+            case "chrome":
+                log.info("Launching Chrome (Local)");
+                WebDriverManager.chromedriver().setup();
+
+                ChromeOptions options = new ChromeOptions();
+                options.addArguments("--headless=new");
+                options.addArguments("--no-sandbox");
+                options.addArguments("--disable-dev-shm-usage");
+
+                return new ChromeDriver(options);
+
+            case "firefox":
+                log.info("Launching Firefox (Local)");
+                WebDriverManager.firefoxdriver().setup();
+                return new FirefoxDriver();
+
+            case "edge":
+                log.info("Launching Edge (Local)");
+                return new EdgeDriver();
+
+            default:
+                throw new RuntimeException("Invalid browser: " + browser);
+        }
+    }
+
+    // ================= REMOTE (DOCKER / GRID) =================
+    private static WebDriver initRemoteDriver(String browser) {
+
+        String gridUrl = ConfigReader.get("gridUrl");
+        if (gridUrl == null || gridUrl.isEmpty()) {
+            throw new RuntimeException("Grid URL is not defined in config.properties");
+        }
+
+        try {
+
+            switch (browser.toLowerCase()) {
+
+                case "chrome":
+                    log.info("Launching Chrome (Remote - Docker/Grid)");
+                    ChromeOptions chromeOptions = new ChromeOptions();
+                    return new RemoteWebDriver(new URL(gridUrl), chromeOptions);
+
+                case "firefox":
+                    log.info("Launching Firefox (Remote - Docker/Grid)");
+                    return new RemoteWebDriver(new URL(gridUrl), new FirefoxOptions());
+
+                case "edge":
+                    log.info("Launching Edge (Remote - Docker/Grid)");
+                    return new RemoteWebDriver(new URL(gridUrl), new EdgeOptions());
+
+                default:
+                    throw new RuntimeException("Invalid browser: " + browser);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to connect to Grid: " + gridUrl, e);
+        }
     }
 }
