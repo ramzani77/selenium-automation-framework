@@ -16,15 +16,18 @@ jobs:
 
     steps:
 
+      # ✅ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ✅ Setup Java
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # ✅ Cache Maven dependencies (faster build)
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -33,13 +36,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-
-
+      # ✅ Start Selenium Grid
       - name: Start Selenium Grid
         run: |
           docker compose up -d
-          echo "Waiting for Grid to be ready..."
 
+      # ✅ Wait for Grid to be ready (better than sleep)
       - name: Wait for Selenium Grid
         run: |
           echo "Waiting for Selenium Grid..."
@@ -49,12 +51,15 @@ jobs:
             sleep 5
           done
 
+      # ✅ Debug containers
       - name: Check running containers
         run: docker ps
 
+      # ✅ Run Tests (do not fail pipeline)
       - name: Run Tests
         run: mvn clean test || true
 
+      # ✅ Install Allure
       - name: Install Allure
         run: |
           sudo apt-get update
@@ -64,6 +69,7 @@ jobs:
           sudo mv allure-2.29.0 /opt/allure
           sudo ln -s /opt/allure/bin/allure /usr/bin/allure
 
+      # ✅ Generate Allure Report
       - name: Generate Allure Report
         run: |
           echo "Checking test results..."
@@ -75,9 +81,7 @@ jobs:
           echo "Generating Allure report..."
           allure generate target/allure-results --clean -o allure-report
 
-          echo "Checking generated report..."
-          ls -R allure-report
-
+      # ✅ Upload raw results
       - name: Upload Allure Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -85,6 +89,19 @@ jobs:
           name: allure-results
           path: target/allure-results
 
+      # ✅ Generate Summary (VERY IMPORTANT)
+      - name: Generate Test Summary
+        if: always()
+        run: |
+          TOTAL=$(grep -r "\"status\"" target/allure-results | wc -l)
+          FAILED=$(grep -r "\"status\":\"failed\"" target/allure-results | wc -l)
+          PASSED=$(grep -r "\"status\":\"passed\"" target/allure-results | wc -l)
+
+          echo "TOTAL=$TOTAL" >> $GITHUB_ENV
+          echo "FAILED=$FAILED" >> $GITHUB_ENV
+          echo "PASSED=$PASSED" >> $GITHUB_ENV
+
+      # ✅ Deploy report to GitHub Pages
       - name: Deploy Allure Report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
@@ -92,6 +109,36 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
 
+      # ✅ Comment PR with results
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const total = process.env.TOTAL;
+            const passed = process.env.PASSED;
+            const failed = process.env.FAILED;
+
+            const reportUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/`;
+
+            const body = `
+            ✅ **Test Execution Summary**
+
+            🔹 Total: ${total}  
+            🔹 Passed: ${passed}  
+            🔹 Failed: ${failed}  
+
+            📊 [View Allure Report](${reportUrl})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      # ✅ Stop Grid
       - name: Stop Grid
         if: always()
         run: docker compose down
