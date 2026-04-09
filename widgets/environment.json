@@ -1,1 +1,1 @@
-[]
+[{"values":["Chrome/Firefox"],"name":"Browser"},{"values":["Remote (Docker Grid)"],"name":"Execution"},{"values":["https://www.saucedemo.com"],"name":"URL"},{"values":["Windows"],"name":"OS"},{"values":["Sameer"],"name":"Tester"}]
