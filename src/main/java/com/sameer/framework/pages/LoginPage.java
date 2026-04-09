@@ -1,12 +1,14 @@
 package com.sameer.framework.pages;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import com.sameer.framework.driver.DriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import io.qameta.allure.Step;
 
 public class LoginPage extends BasePage {
+
     private static final Logger log = LogManager.getLogger(LoginPage.class);
 
     private WebDriver driver;
@@ -20,30 +22,32 @@ public class LoginPage extends BasePage {
     private By loginBtn = By.id("login-button");
     private By errorMessage = By.cssSelector("h3[data-test='error']");
 
-
-    //Fluent Design Pattern.
-    public LoginPage enterUsername(String user){
+    // 🔥 Step 1
+    @Step("Enter username: {0}")
+    public LoginPage enterUsername(String user) {
         log.info("Entering username");
         type(username, user);
         return this;
     }
-     public LoginPage enterPassword(String pass){
-         log.info("Entering password");
-         type(password,pass);
+
+    // 🔥 Step 2
+    @Step("Enter password")
+    public LoginPage enterPassword(String pass) {
+        log.info("Entering password");
+        type(password, pass);
         return this;
-     }
-     public LoginPage clickLoginButton(){
-         log.info("Clicking login button");
+    }
+
+    // 🔥 Step 3
+    @Step("Click login button")
+    public LoginPage clickLoginButton() {
+        log.info("Clicking login button");
         click(loginBtn);
         return this;
-     }
+    }
 
-     public String getErrorMessage(){
-         String error = getText(errorMessage);
-         log.info("Error message displayed: " + error);
-         return error;
-     }
-
+    // 🔥 Step 4
+    @Step("Verify error message is displayed")
     public boolean isErrorDisplayed() {
         try {
             boolean visible = driver.findElement(errorMessage).isDisplayed();
@@ -55,4 +59,12 @@ public class LoginPage extends BasePage {
         }
     }
 
+    // 🔥 MASTER STEP (VERY IMPORTANT)
+    @Step("Login with username: {0} and password: {1}")
+    public LoginPage login(String user, String pass) {
+        enterUsername(user);
+        enterPassword(pass);
+        clickLoginButton();
+        return this;
+    }
 }

@@ -17,8 +17,7 @@ public class BasePage {
 
     protected void click(By locator){
         WaitUtils.waitForElementToBeClickable(locator);
-        DriverManager.getDriver().findElement(locator).click();
-//        driver.findElement(locator).click();
+        driver.findElement(locator).click();
     }
 
     protected void type(By locator, String text){

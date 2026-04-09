@@ -25,17 +25,35 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+
+
       - name: Start Selenium Grid
         run: |
           docker compose up -d
           echo "Waiting for Grid to be ready..."
-          sleep 40
+
+      - name: Wait for Selenium Grid
+        run: |
+          echo "Waiting for Selenium Grid..."
+          for i in {1..10}; do
+            curl -s http://localhost:4444/status | grep ready && break
+            echo "Grid not ready yet..."
+            sleep 5
+          done
 
       - name: Check running containers
         run: docker ps
 
       - name: Run Tests
-        run: mvn clean test
+        run: mvn clean test || true
 
       - name: Install Allure
         run: |

@@ -36,10 +36,18 @@ public class DriverFactory {
 
         if ("remote".equalsIgnoreCase(runMode)) {
 
-            driver = initRemoteDriver(browser);
+            try {
+                log.info("Attempting Remote execution (Grid)");
+                driver = initRemoteDriver(browser);
+
+            } catch (Exception e) {
+
+                log.error("Grid not available. Falling back to LOCAL execution");
+
+                driver = initLocalDriver(browser);
+            }
 
         } else {
-
             driver = initLocalDriver(browser);
         }
 

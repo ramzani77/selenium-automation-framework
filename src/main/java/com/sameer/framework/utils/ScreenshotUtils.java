@@ -14,9 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ScreenshotUtils {
-    @Attachment(value = "Failure Screenshot", type = "image/png")
-    public static byte[] attachScreenshot(String path) throws IOException {
-        return Files.readAllBytes(Paths.get(path));
+    @Attachment(value = "Screenshot", type = "image/png")
+    public static byte[] takeScreenshot() {
+        return ((TakesScreenshot) DriverManager.getDriver())
+                .getScreenshotAs(OutputType.BYTES);
     }
     public static String captureScreenshot(String testName) {
 

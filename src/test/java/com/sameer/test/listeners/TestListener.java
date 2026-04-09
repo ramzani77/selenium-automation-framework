@@ -1,46 +1,48 @@
 package com.sameer.test.listeners;
 
-import com.sameer.framework.utils.ScreenshotUtils;
+import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.qameta.allure.Allure;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class TestListener implements ITestListener {
 
     private static final Logger log = LogManager.getLogger(TestListener.class);
 
     @Override
+    public void onTestStart(ITestResult result) {
+        log.info("Test Started: " + result.getName());
+    }
+
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        log.info("Test Passed: " + result.getName());
+    }
+
+    @Override
     public void onTestFailure(ITestResult result) {
+        log.error("Test Failed: " + result.getName());
+    }
 
-        String testName = result.getName();
-
-        log.error("Test Failed: " + testName);
-
-        String screenshotPath = ScreenshotUtils.captureScreenshot(testName);
-
-        log.error("Screenshot saved at: " + screenshotPath);
-
-        // Attach screenshot to Allure
+    @Override
+    public void onStart(ITestContext context) {
         try {
-            byte[] fileContent = java.nio.file.Files.readAllBytes(
-                    java.nio.file.Paths.get(screenshotPath)
-            );
+            Path source = Path.of("src/test/resources/environment.properties");
+            Path destination = Path.of("target/allure-results/environment.properties");
 
-            Allure.addAttachment(
-                    "Failure Screenshot",
-                    "image/png",
-                    new java.io.ByteArrayInputStream(fileContent),
-                    ".png"
-            );
+            Files.createDirectories(destination.getParent());
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 
-            log.error("Screenshot attached to Allure report");
+            log.info("Environment file added to Allure report");
 
-        } catch (Exception e) {
-            log.error("Failed to attach screenshot", e);
+        } catch (IOException e) {
+            log.error("Failed to copy environment.properties", e);
         }
     }
 }
